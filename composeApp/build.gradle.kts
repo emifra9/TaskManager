@@ -7,12 +7,10 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kspCompose)
-   // alias(libs.plugins.room)
 }
 
 kotlin {
     androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
         }
@@ -55,7 +53,9 @@ kotlin {
             implementation(libs.koin.composeVM)
 
             implementation(libs.room.runtime)
+            implementation(libs.room.common)
             implementation(libs.sqlite.bundled)
+            implementation(libs.androidx.sqlite.ktx)
         }
     }
 }
@@ -78,7 +78,12 @@ android {
     }
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
@@ -95,7 +100,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.room.ktx)
-    // Room
+    implementation(libs.androidx.sqlite.ktx)
     add("kspAndroid", libs.room.compiler)
     add("kspIosSimulatorArm64", libs.room.compiler)
     add("kspIosX64", libs.room.compiler)
@@ -105,6 +110,3 @@ dependencies {
 ksp {
     arg("room.schemaLocation", "${projectDir}/schemas")
 }
-/*room {
-    schemaDirectory("$projectDir/schemas")
-}*/

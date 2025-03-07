@@ -8,6 +8,7 @@ import com.emilianofraile.taskmanager.ui.screen.TaskEvent
 import com.emilianofraile.taskmanager.ui.screen.TaskEvent.EditTask
 import com.emilianofraile.taskmanager.ui.screen.TaskEvent.RemoveTask
 import com.emilianofraile.taskmanager.ui.screen.TaskEvent.SaveTask
+import com.emilianofraile.taskmanager.ui.screen.TaskEvent.ToggleTask
 import com.emilianofraile.taskmanager.ui.screen.TaskFormState
 import com.emilianofraile.taskmanager.ui.screen.TaskUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -62,6 +63,18 @@ class TaskViewModel() : ViewModel(), KoinComponent {
             is RemoveTask -> removeTask(event.task)
             is TaskEvent.GetTask -> loadTaskById(event.id)
             is TaskEvent.ResetForm -> resetFormState()
+            is ToggleTask -> toggleTask(event.task)
+        }
+    }
+
+    private fun toggleTask(task: Task) {
+        viewModelScope.launch {
+            try {
+                val updatedTask = task.copy(isCompleted = !task.isCompleted)
+                repository.updateTask(updatedTask)
+            } catch (e: Exception) {
+                _state.value = TaskUiState.Error(e.message ?: "Error al actualizar el estado de la tarea")
+            }
         }
     }
 
@@ -74,6 +87,7 @@ class TaskViewModel() : ViewModel(), KoinComponent {
                     taskId = id,
                     title = task.title,
                     description = task.description,
+                    isCompleted = task.isCompleted,
                     isLoading = false
                 )
             } catch (e: Exception) {

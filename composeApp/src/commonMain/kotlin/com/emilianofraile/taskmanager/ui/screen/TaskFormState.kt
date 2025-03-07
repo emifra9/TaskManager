@@ -5,5 +5,6 @@ data class TaskFormState(
     val title: String = "",
     val description: String = "",
     val isLoading: Boolean = false,
+    val isCompleted: Boolean = false,
     val error: String? = null
 ) 

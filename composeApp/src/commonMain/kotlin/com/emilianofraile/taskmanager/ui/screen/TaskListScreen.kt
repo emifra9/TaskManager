@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.emilianofraile.taskmanager.data.Task
 import com.emilianofraile.taskmanager.ui.screen.NavigationEvent.NavigateToAdd
 import com.emilianofraile.taskmanager.ui.screen.TaskEvent.RemoveTask
+import com.emilianofraile.taskmanager.ui.screen.TaskEvent.ToggleTask
 import com.emilianofraile.taskmanager.ui.screen.TaskUiState.Empty
 import com.emilianofraile.taskmanager.ui.screen.TaskUiState.Error
 import com.emilianofraile.taskmanager.ui.screen.TaskUiState.Loading
@@ -104,7 +106,8 @@ fun TaskListScreen(
                         TaskItem(
                             task = task,
                             onRemoveClick = { onEvent(RemoveTask(task)) },
-                            onTaskClick = { onNavigationEvent(NavigationEvent.NavigateToEdit(task.id)) }
+                            onTaskClick = { onNavigationEvent(NavigationEvent.NavigateToEdit(task.id)) },
+                            onToggleClick = { onEvent(ToggleTask(task)) }
                         )
                     }
                 }
@@ -128,7 +131,8 @@ fun TaskListScreen(
 private fun TaskItem(
     task: Task,
     onRemoveClick: () -> Unit,
-    onTaskClick: () -> Unit
+    onTaskClick: () -> Unit,
+    onToggleClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -138,7 +142,6 @@ private fun TaskItem(
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(size = 8.dp)
             )
-            .clickable { onTaskClick() }
     ) {
         Row(
             modifier = Modifier
@@ -147,22 +150,38 @@ private fun TaskItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { onTaskClick() },
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = task.title,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                Checkbox(
+                    checked = task.isCompleted,
+                    onCheckedChange = { onToggleClick() }
                 )
-                Text(
-                    text = task.description,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                    fontSize = 10.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Column {
+                    Text(
+                        text = task.title,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = if (task.isCompleted) {
+                            MaterialTheme.typography.bodyLarge.copy(
+                                textDecoration = androidx.compose.ui.text.style.TextDecoration.LineThrough
+                            )
+                        } else {
+                            MaterialTheme.typography.bodyLarge
+                        }
+                    )
+                    Text(
+                        text = task.description,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        fontSize = 10.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
             IconButton(onClick = onRemoveClick) {
                 Icon(
@@ -175,17 +194,14 @@ private fun TaskItem(
     }
 }
 
-
 @Preview()
 @Composable
 fun TaskListScreenLoadingPreview() {
-
     TaskListScreen(
         state = Loading,
         onEvent = {},
         onNavigationEvent = {}
     )
-
 }
 
 @Preview()
@@ -204,9 +220,9 @@ fun TaskListScreenWithTasksPreview() {
     TaskListScreen(
         state = Success(
             tasks = listOf(
-                Task(id = 1, title = "Comprar leche", description = "Leche descremada"),
-                Task(id = 2, title = "Hacer ejercicio", description = "30 minutos"),
-                Task(id = 3, title = "Estudiar Compose", description = "Jetpack Compose")
+                Task(id = 1, title = "Comprar leche", description = "Leche descremada", isCompleted = true),
+                Task(id = 2, title = "Hacer ejercicio", description = "30 minutos", isCompleted = false),
+                Task(id = 3, title = "Estudiar Compose", description = "Jetpack Compose", isCompleted = true)
             )
         ),
         onEvent = {},

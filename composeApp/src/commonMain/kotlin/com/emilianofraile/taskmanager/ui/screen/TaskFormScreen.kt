@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.emilianofraile.taskmanager.data.Task
 import org.jetbrains.compose.resources.stringResource
@@ -30,6 +31,7 @@ import taskmanager.composeapp.generated.resources.task_title
 import taskmanager.composeapp.generated.resources.task_description
 import taskmanager.composeapp.generated.resources.cancel
 import taskmanager.composeapp.generated.resources.save
+import taskmanager.composeapp.generated.resources.task_completed
 
 @Composable
 fun TaskFormScreen(
@@ -39,10 +41,12 @@ fun TaskFormScreen(
 ) {
     var title by remember { mutableStateOf(state.title) }
     var description by remember { mutableStateOf(state.description) }
+    var isCompleted by remember { mutableStateOf(state.isCompleted) }
 
     LaunchedEffect(state) {
         title = state.title
         description = state.description
+        isCompleted = state.isCompleted
     }
 
     Column(
@@ -61,6 +65,15 @@ fun TaskFormScreen(
                 color = androidx.compose.material3.MaterialTheme.colorScheme.error
             )
             Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        if (state.taskId > 0L && state.isCompleted) {
+            Text(
+                text = stringResource(Res.string.task_completed),
+                color = androidx.compose.material3.MaterialTheme.colorScheme.primary,
+                textDecoration = TextDecoration.LineThrough,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
         }
 
         OutlinedTextField(
@@ -92,7 +105,7 @@ fun TaskFormScreen(
             Button(
                 onClick = { 
                     if (state.taskId > 0L) {
-                        onEvent(TaskEvent.EditTask(Task(id = state.taskId, title = title, description = description)))
+                        onEvent(TaskEvent.EditTask(Task(id = state.taskId, title = title, description = description, isCompleted = state.isCompleted)))
                     } else {
                         onEvent(TaskEvent.SaveTask(title = title, description = description))
                     }
@@ -113,7 +126,8 @@ fun TaskFormScreenPreview() {
         state = TaskFormState(
             taskId = 1L,
             title = "Sample Task",
-            description = "This is a sample task description"
+            description = "This is a sample task description",
+            isCompleted = true
         ),
         onEvent = {},
         onNavigationEvent = {}

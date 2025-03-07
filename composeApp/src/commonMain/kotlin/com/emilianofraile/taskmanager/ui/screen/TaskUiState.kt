@@ -20,6 +20,7 @@ sealed class TaskEvent {
     data class RemoveTask(val task: Task) : TaskEvent()
     data class EditTask(val task: Task) : TaskEvent()
     data class GetTask(val id: Long) : TaskEvent()
+    data class ToggleTask(val task: Task) : TaskEvent()
     data object ResetForm : TaskEvent()
 }
 
