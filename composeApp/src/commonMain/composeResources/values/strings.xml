@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">ChallengeApp</string>
+    <string name="no_task_availables">No hay tareas disponibles</string>
+    <string name="delete_task">Eliminar tarea</string>
+    <string name="add_task">Añadir tarea</string>
+    <string name="task_title">Título</string>
+    <string name="task_description">Descripción</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+</resources>
